@@ -108,14 +108,14 @@ class HandleInertiaRequests extends Middleware
             ? asset('storage/' . $profil->file_path)
             : asset('images/default.png'),
 
-            'namaSekolah' => $profil?->nama_sekolah ?? 'KREATICRAFT ID',
+            'namaSekolah' => $profil?->nama_sekolah ?? 'Lumi Platforms, Inc.',
 
             'profilSekolah' => [
-                'namaSekolah' => $profil?->nama_sekolah ?? 'KREATICRAFT ID',
+                'namaSekolah' => $profil?->nama_sekolah ?? 'Lumi Platforms, Inc.',
                 'alamat' => $profil?->alamat ?? 'Jl. Raya Citayam - Parung RT. 002 / RW. 011 Desa Ragajaya, Kecamatan Bojonggede, Kabupaten Bogor, Jawa Barat 16920.',
                 'telepon' => $profil?->telepon ?? '+62 XXX-XXXX-XXX',
-                'email' => $profil?->email ?? 'info@kreaticraft.com',
-                'website' => $profil?->website ?? 'www.kreaicraft.com',
+                'email' => $profil?->email ?? 'info@lumiverse.co.id',
+                'website' => $profil?->website ?? 'www.lumiverse.co.id',
                 'visi' => $profil?->visi ?? 'Menjadi sekolah kejuruan berstandar nasional yang mencetak lulusan kompeten, berintegritas, dan berdaya saing global.',
                 'misi' => $profil?->misi ?? 'Menyelenggarakan pendidikan vokasi berkualitas dengan kurikulum berbasis industri, didukung tenaga pengajar profesional dan fasilitas modern.',
             ],
