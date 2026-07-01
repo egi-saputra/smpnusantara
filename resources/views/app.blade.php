@@ -9,7 +9,11 @@
         <meta name="google" content="notranslate">
         <meta http-equiv="Content-Language" content="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-        <title inertia>{{ config('app.name', 'Laravel') }}</title>
+        <title inertia>{{ config('app.name', 'LMS Nusantara') }}</title>
+
+        <!-- Favicon -->
+        <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
+        <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
 
         <!-- Fonts Preload -->
         <link rel="preload" href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">

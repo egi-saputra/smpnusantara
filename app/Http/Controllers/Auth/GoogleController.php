@@ -28,7 +28,7 @@ class GoogleController extends Controller
                 'password'  => null,
                 'google_id' => $googleUser->getId(),
                 'avatar'    => $googleUser->getAvatar(),
-                'role'      => 'user', // ✅ DEFAULT ROLE
+                'role'      => 'siswa', // ✅ DEFAULT ROLE
             ]);
         } else {
             // 🔁 USER LAMA → JANGAN UBAH ROLE
