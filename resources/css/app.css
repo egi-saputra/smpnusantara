@@ -1,0 +1,420 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Poppins:wght@400;600;700;800&family=Raleway:wght@400;600;700;800&family=Inter:wght@400;600;700&family=Nunito+Sans:wght@400;600;700&family=Urbanist:wght@400;600;700&family=Manrope:wght@400;600;700&family=Outfit:wght@400;600;700&family=Playfair+Display:wght@400;600;700&family=Cormorant+Garamond:wght@400;600;700&family=Bodoni+Moda:wght@400;600&family=Cinzel:wght@400;600;700&family=Marcellus&family=Orbitron:wght@400;600;700&family=Exo+2:wght@400;600;700&family=Rajdhani:wght@400;600;700&family=Audiowide&family=Quantico:wght@400;700&family=Sarpanch:wght@400;600;700&family=Quicksand:wght@400;600;700&family=Nunito:wght@400;600;700&family=Kumbh+Sans:wght@400;600;700&family=Mulish:wght@400;600;700&family=Rubik:wght@400;600;700&family=Anton&family=Oswald:wght@400;600;700&family=Bebas+Neue&family=Work+Sans:wght@400;600;700&family=Barlow+Condensed:wght@400;600;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Nonaktifkan background biru Safari/WebKit pada input autofill */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+    -webkit-box-shadow: 0 0 0px 1000px white inset !important; /* ganti white sesuai bg input */
+    -webkit-text-fill-color: #1f2937 !important; /* teks jadi warna gelap (sesuai Tailwind gray-800) */
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+:root {
+    --wave-back: rgba(255, 255, 255, 0.08);
+    --wave-mid: rgba(255, 255, 255, 0.16);
+    --wave-front: rgba(255, 255, 255, 0.28);
+}
+
+.dark {
+    --wave-back: rgba(255, 255, 255, 0.04);
+    --wave-mid: rgba(255, 255, 255, 0.08);
+    --wave-front: rgba(255, 255, 255, 0.14);
+}
+
+svg path {
+    will-change: transform;
+}
+
+@supports ((-webkit-backdrop-filter: blur(0)) or (backdrop-filter: blur(0))) {
+    .glass {
+        -webkit-backdrop-filter: blur(20px);
+        backdrop-filter: blur(20px);
+    }
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade {
+    animation: fade 0.15s ease-out;
+}
+
+.info-card {
+    @apply bg-gray-50 rounded-xl p-4 md:p-5 border
+           hover:shadow-md transition;
+}
+.info-label {
+    @apply text-xs text-gray-500 font-semibold uppercase tracking-wide;
+}
+.info-value {
+    @apply text-gray-800 font-bold text-lg mt-1;
+}
+@keyframes slide-up {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-up {
+    animation: slide-up 0.3s ease-out;
+}
+
+@keyframes fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-2px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in {
+    animation: fade-in 0.2s ease-out;
+}
+
+/* Fade Overlay */
+.fade-enter-active,
+.fade-leave-active {
+    transition: opacity 0.25s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+/* Popup Modal */
+.popup-enter-active {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.popup-leave-active {
+    transition: all 0.2s ease-in;
+}
+
+.popup-enter-from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-12px);
+}
+
+.popup-leave-to {
+    opacity: 0;
+    transform: scale(0.95) translateY(-12px);
+}
+
+.swal2-timer-progress-bar {
+    background-color: #2563eb !important; /* Tailwind blue-600 */
+}
+
+#theme-transition-layer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    /* background: linear-gradient(to bottom right, #1e1b4b, #312e81, #4c1d95); */
+    background: rgb(15 23 42); /* slate-900 */
+    clip-path: circle(0% at 0% 0%);
+}
+
+/* MASUK (0 → 100) */
+#theme-transition-layer.reveal-in {
+    animation: revealIn 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* KELUAR (100 → 0) */
+#theme-transition-layer.reveal-out {
+    animation: revealOut 600ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes revealIn {
+    from {
+        clip-path: circle(0% at 0% 0%);
+    }
+    to {
+        clip-path: circle(150% at 0% 0%);
+    }
+}
+
+@keyframes revealOut {
+    from {
+        clip-path: circle(150% at 0% 0%);
+    }
+    to {
+        clip-path: circle(0% at 0% 0%);
+    }
+}
+
+.form-label {
+    @apply block mb-2 text-sm font-semibold text-gray-700 dark:text-gray-300;
+}
+
+.form-input {
+    @apply w-full rounded-xl !border !border-gray-300 dark:!border-gray-700
+           bg-white dark:bg-white/10 p-3 focus:!outline-none transition;
+}
+
+.btn-primary {
+    @apply flex-1 flex items-center justify-center gap-2
+           px-6 py-3 rounded-xl
+           bg-gradient-to-r from-blue-500 to-indigo-600
+           text-white font-semibold shadow-lg
+           hover:from-blue-600 hover:to-indigo-700 transition;
+}
+
+.btn-secondary {
+    @apply flex-1 flex items-center justify-center gap-2
+           px-6 py-3 rounded-xl bg-gray-600 text-white
+           hover:bg-gray-700 transition;
+}
+
+.btn-success {
+    @apply px-5 py-2.5 rounded-xl
+           bg-green-600 text-white font-semibold
+           hover:bg-green-700 transition disabled:opacity-70;
+}
+
+.badge {
+    @apply px-3 py-1 rounded-full text-xs font-semibold;
+}
+.badge-green {
+    @apply bg-green-100 text-green-700;
+}
+.badge-blue {
+    @apply bg-blue-100 text-blue-700;
+}
+.badge-orange {
+    @apply bg-orange-100 text-orange-700;
+}
+.badge-yellow {
+    @apply bg-yellow-100 text-yellow-700;
+}
+
+/* ===== QUILL EDITOR ===== */
+.announcement-editor .ql-editor {
+    min-height: 160px;
+    padding: 16px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+}
+
+.ql-snow,
+.ql-snow * {
+    border: none !important;
+    box-shadow: none !important;
+}
+
+.dark .announcement-editor .ql-editor {
+    color: #e5e7eb;
+}
+
+.announcement-editor .ql-editor p {
+    margin: 0;
+}
+
+/* ===== QUILL PLACEHOLDER ===== */
+.announcement-editor .ql-editor.ql-blank::before {
+    left: 16px;
+    right: 16px;
+    color: #9ca3af;
+    font-style: normal;
+}
+
+.dark .announcement-editor .ql-editor.ql-blank::before {
+    color: rgba(148, 163, 184, 0.7); /* dark mode */
+}
+
+/* ==================================================
+   QUILL RENDER FIX (ALIGN + SPACING)
+   Aman untuk prose + dark mode
+   ================================================== */
+
+/* Reset spacing bawaan prose */
+.announcement-content p,
+.announcement-content h1,
+.announcement-content h2,
+.announcement-content h3,
+.announcement-content h4,
+.announcement-content h5,
+.announcement-content h6,
+.announcement-content ul,
+.announcement-content ol {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+/* List spacing */
+.announcement-content ul,
+.announcement-content ol {
+    padding-left: 1.25rem;
+}
+
+.announcement-content li {
+    margin: 0.15rem 0;
+}
+
+/* Headings (biar tidak kegedean) */
+.announcement-content h1 {
+    font-size: 1.1rem;
+    margin-top: 0.5rem;
+}
+.announcement-content h2 {
+    font-size: 1.05rem;
+}
+.announcement-content h3 {
+    font-size: 1rem;
+}
+
+/* ==================================================
+   ALIGNMENT (QUILL → PROSE SAFE)
+   ================================================== */
+.announcement-content .ql-align-left {
+    text-align: left !important;
+}
+
+.announcement-content .ql-align-center {
+    text-align: center !important;
+}
+
+.announcement-content .ql-align-right {
+    text-align: right !important;
+}
+
+.announcement-content .ql-align-justify {
+    text-align: justify !important;
+}
+
+/* ==================================================
+   PARAGRAPH CLEANUP
+   ================================================== */
+.announcement-content p {
+    line-height: 1.6;
+}
+
+/* Hilangkan spacing aneh paragraf kosong */
+.announcement-content p:empty {
+    display: none;
+}
+
+/* ===== EDITOR BRAND ===== */
+/* .editor-brand {
+    position: absolute;
+    bottom: 8px;
+    right: 14px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    pointer-events: none;
+    user-select: none;
+} */
+
+/* Dark mode */
+.dark .editor-brand {
+    color: rgba(107, 114, 128, 0.7); /* gray-500 */
+}
+
+.announcement-editor:focus-within + .editor-brand {
+    opacity: 0.4;
+}
+
+/* =========================
+   CUSTOM UTILITY / COMPONENT
+   ========================= */
+@layer components {
+    .label {
+        @apply block mb-2 font-medium
+           text-gray-700 dark:text-gray-300;
+    }
+
+    .form-input {
+        @apply w-full rounded-lg p-3
+           bg-white dark:bg-slate-900
+           border border-gray-300 dark:border-slate-700
+           text-gray-800 dark:text-slate-100
+           focus:outline-none focus:ring-2 focus:ring-blue-400
+           transition;
+    }
+
+    .btn-primary {
+        @apply flex items-center justify-center gap-2
+           px-6 py-3 rounded-lg font-semibold
+           text-white bg-blue-600
+           hover:bg-blue-700
+           shadow-lg transition;
+    }
+
+    .btn-secondary {
+        @apply flex items-center justify-center gap-2
+           px-6 py-3 rounded-lg font-semibold
+           text-white bg-gray-700
+           hover:bg-gray-800
+           shadow-lg transition;
+    }
+
+    .btn-success {
+        @apply flex items-center justify-center gap-2
+           px-5 py-3 rounded-lg font-semibold
+           text-white bg-green-600
+           hover:bg-green-700
+           shadow-md transition;
+    }
+
+    .no-select {
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-touch-callout: none;
+        -khtml-user-select: none;
+        user-select: none;
+    }
+
+    .no-select textarea {
+        user-select: text !important;
+    }
+}
+
+/* ===== QUILL / ANNOUNCEMENT FIX ===== */
+
+.announcement-preview *,
+.announcement-content *,
+.announcement-editor .ql-editor * {
+    color: inherit !important;
+    background: transparent !important;
+}
+
+/* DARK MODE */
+.dark .announcement-preview,
+.dark .announcement-content,
+.dark .announcement-editor .ql-editor {
+    color: #f3f4f6 !important;
+}
+
+/* LIGHT MODE */
+.announcement-preview,
+.announcement-content,
+.announcement-editor .ql-editor {
+    color: #111827 !important;
+}
+
+/* Hilangkan background hasil copas */
+.announcement-preview span,
+.announcement-content span,
+.announcement-editor .ql-editor span {
+    background: transparent !important;
+}

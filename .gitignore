@@ -1,0 +1,33 @@
+# Laravel / PHP
+/vendor
+/storage/*.key
+.phpunit.result.cache
+/.phpunit.cache
+
+# Environment
+.env
+.env.*
+auth.json
+
+# Node / Frontend
+/node_modules
+/npm-debug.log
+/yarn-error.log
+
+# Build output
+/public/build
+/public/hot
+/public/storage
+
+# IDE / Editor
+/.idea
+/.vscode
+/.fleet
+
+# Homestead
+Homestead.json
+Homestead.yaml
+
+# Backup / Misc
+backup
+backup_soal_video
