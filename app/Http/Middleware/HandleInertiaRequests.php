@@ -7,6 +7,7 @@ use App\Models\Pesan;
 use App\Models\Pengumuman;
 use App\Models\Assignment;
 use App\Models\Guru;
+use App\Support\JournalWindow;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -138,6 +139,17 @@ class HandleInertiaRequests extends Middleware
 
             // ── Pesan untuk bell notifikasi ───────────────────────
             'pesan' => fn () => $this->loadPesanForUser($user, $kelasId),
+
+            'journal' => function () use ($request) {
+                $user = $request->user();
+    
+                // Hanya relevan untuk user yang punya data guru
+                if (!$user || !$user->guru) {
+                    return null;
+                }
+    
+                return JournalWindow::toArray();
+            },
         ]);
     }
 

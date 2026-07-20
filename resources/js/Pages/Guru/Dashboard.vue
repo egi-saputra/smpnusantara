@@ -30,8 +30,8 @@ const userName = page.props.auth.user.name || 'User';
 const journalWindow = computed(() => page.props.journal ?? {
     isOpen: false,
     phase: 'after',
-    opensAt: '06:00',
-    closesAt: '14:00',
+    opensAt: '13:00',
+    closesAt: '18:00',
 })
 
 const journalStatusText = computed(() => {
