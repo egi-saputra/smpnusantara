@@ -6,10 +6,12 @@ use App\Http\Controllers\Controller;
 use App\Models\Journal;
 use App\Models\Kelas;
 use App\Models\Mapel;
+use App\Support\JournalLocation;
 use App\Support\JournalWindow;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
@@ -53,6 +55,82 @@ class JournalController extends Controller
             ->where('jam_selesai', '>', $now->format('H:i:s'))
             ->orderByDesc('jam_mulai')
             ->first();
+    }
+
+    /**
+     * Validasi lokasi yang dikirim guru: hitung ulang di server (tidak
+     * pernah percaya hasil valid/tidak dari client), lalu cek juga
+     * kewajaran kecepatan pindah dari entri jurnal terakhir guru ini
+     * untuk mendeteksi lompatan lokasi yang mustahil.
+     *
+     * @return string|null Pesan error kalau lokasi ditolak, null kalau valid.
+     */
+    private function validasiLokasi($guru, Request $request, Carbon $now): ?string
+    {
+        $lat = (float) $request->input('latitude');
+        $lng = (float) $request->input('longitude');
+        $akurasi = (float) $request->input('akurasi_meter');
+
+        $hasil = JournalLocation::validate($lat, $lng, $akurasi);
+
+        if (!$hasil['akurasi_ok']) {
+            Log::warning('Jurnal ditolak: akurasi GPS terlalu rendah', [
+                'guru_id' => $guru->id,
+                'akurasi_meter' => $akurasi,
+                'jarak_meter' => $hasil['jarak_meter'],
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            return 'Sinyal GPS kurang akurat. Pastikan GPS aktif dan coba lagi di tempat terbuka.';
+        }
+
+        if (!$hasil['dalam_radius']) {
+            Log::warning('Jurnal ditolak: di luar radius lokasi', [
+                'guru_id' => $guru->id,
+                'jarak_meter' => $hasil['jarak_meter'],
+                'akurasi_meter' => $akurasi,
+                'ip' => $request->ip(),
+                'user_agent' => $request->userAgent(),
+            ]);
+
+            return 'Anda berada di luar radius lokasi sekolah (jarak saat ini sekitar ' . round($hasil['jarak_meter']) . ' meter). Jurnal hanya bisa diisi dari lokasi sekolah.';
+        }
+
+        // Cek kewajaran kecepatan pindah dari entri jurnal terakhir guru ini.
+        $entriTerakhir = Journal::where('guru_id', $guru->id)
+            ->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->orderByDesc('tanggal')
+            ->orderByDesc('jam_mulai')
+            ->first();
+
+        if ($entriTerakhir) {
+            $waktuTerakhir = Carbon::parse($entriTerakhir->tanggal->toDateString() . ' ' . $entriTerakhir->jam_mulai, JournalWindow::TIMEZONE);
+
+            $wajar = JournalLocation::kecepatanWajar(
+                (float) $entriTerakhir->latitude,
+                (float) $entriTerakhir->longitude,
+                $waktuTerakhir,
+                $lat,
+                $lng,
+                $now
+            );
+
+            if (!$wajar) {
+                Log::warning('Jurnal ditolak: lompatan lokasi tidak wajar dibanding entri sebelumnya', [
+                    'guru_id' => $guru->id,
+                    'entri_sebelumnya_id' => $entriTerakhir->id,
+                    'jarak_meter' => $hasil['jarak_meter'],
+                    'ip' => $request->ip(),
+                    'user_agent' => $request->userAgent(),
+                ]);
+
+                return 'Lokasi tidak dapat diverifikasi. Silakan coba lagi, atau hubungi admin jika masalah berlanjut.';
+            }
+        }
+
+        return null;
     }
 
     public function index(Request $request)
@@ -108,6 +186,10 @@ class JournalController extends Controller
                 'jam_mulai'   => $now->format('H:i'),
                 'jam_selesai' => $now->copy()->addMinutes(JournalWindow::DURASI_SESI_MENIT)->format('H:i'),
             ],
+            // Lokasi target & threshold — front-end pakai ini cuma untuk
+            // pratinjau/UX (misal tampilkan jarak perkiraan). Validasi yang
+            // sebenarnya selalu dihitung ulang di server saat submit.
+            'targetLocation' => JournalLocation::toArray(),
         ]);
     }
 
@@ -137,7 +219,25 @@ class JournalController extends Controller
                 Rule::exists('mapel', 'id')->where('guru_id', $guru->id),
             ],
             'materi' => ['required', 'string', 'max:2000'],
+            // Lokasi wajib dikirim mentah oleh client (hasil Geolocation API).
+            // Server yang menentukan valid/tidak, bukan client.
+            'latitude' => ['required', 'numeric', 'between:-90,90'],
+            'longitude' => ['required', 'numeric', 'between:-180,180'],
+            'akurasi_meter' => ['required', 'numeric', 'min:0'],
         ]);
+
+        $pesanErrorLokasi = $this->validasiLokasi($guru, $request, $now);
+        if ($pesanErrorLokasi) {
+            return redirect()
+                ->route('guru.journal.create')
+                ->with('error', $pesanErrorLokasi);
+        }
+
+        $hasilLokasi = JournalLocation::validate(
+            (float) $validated['latitude'],
+            (float) $validated['longitude'],
+            (float) $validated['akurasi_meter']
+        );
 
         // Tanggal & jam TIDAK diambil dari input client, tapi dari waktu server saat submit
         Journal::create([
@@ -149,6 +249,10 @@ class JournalController extends Controller
             'jam_mulai'   => $now->format('H:i:s'),
             'jam_selesai' => $now->copy()->addMinutes(JournalWindow::DURASI_SESI_MENIT)->format('H:i:s'),
             'jumlah_jam'  => self::JUMLAH_JAM_DEFAULT,
+            'latitude'      => $validated['latitude'],
+            'longitude'     => $validated['longitude'],
+            'akurasi_meter' => $validated['akurasi_meter'],
+            'jarak_meter'   => $hasilLokasi['jarak_meter'],
         ]);
 
         return redirect()
@@ -184,7 +288,9 @@ class JournalController extends Controller
             'materi' => ['required', 'string', 'max:2000'],
         ]);
 
-        // Waktu sesi (tanggal/jam) tetap tidak bisa diubah lewat form, hanya kelas/mapel/materi
+        // Waktu sesi (tanggal/jam) dan lokasi tetap tidak bisa diubah lewat
+        // form, hanya kelas/mapel/materi. Lokasi memang hanya divalidasi
+        // sekali saat submit awal (store), bukan saat edit.
         $journal->update($validated);
 
         return redirect()

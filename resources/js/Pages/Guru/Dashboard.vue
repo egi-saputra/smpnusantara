@@ -225,7 +225,7 @@ const getInitials = (name) => {
                     </p>
                 </div>
                 <!-- Badge -->
-                <a href="https://www.lumiverse.co.id" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-2 relative overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 
+                <a href="https://lumiverse.co.id" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-2 relative overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 
            px-4 py-2 rounded-full text-white/80 text-sm hover:bg-white/15 hover:text-white hover:border-white/30
            transition-colors duration-300">
                     <SparklesIcon class="w-4 h-4 text-amber-300 relative z-10" />

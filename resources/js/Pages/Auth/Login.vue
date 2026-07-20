@@ -161,7 +161,7 @@ onMounted(() => {
                         </Link>
                     </li>
                     <li>
-                        <a href="https://www.lumiverse.co.id" target="_blank" rel="noopener noreferrer"
+                        <a href="https://lumiverse.co.id" target="_blank" rel="noopener noreferrer"
                             class="directory-row">
                             <span class="directory-index">03</span>
                             <span class="flex-1">Powered by PT Lumi Platforms Indonesia</span>

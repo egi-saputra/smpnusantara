@@ -17,10 +17,18 @@ class Journal extends Model
         'jam_selesai',
         'jumlah_jam',
         'materi',
+        'latitude',
+        'longitude',
+        'akurasi_meter',
+        'jarak_meter',
     ];
 
     protected $casts = [
         'tanggal' => 'date',
+        'latitude' => 'float',
+        'longitude' => 'float',
+        'akurasi_meter' => 'float',
+        'jarak_meter' => 'float',
     ];
 
     public function guru()

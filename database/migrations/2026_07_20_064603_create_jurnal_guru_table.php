@@ -30,6 +30,15 @@ return new class extends Migration
             $table->date('tanggal');
             $table->time('jam_mulai');
             $table->time('jam_selesai')->nullable();
+            $table->decimal('latitude', 10, 7)->nullable();
+            $table->decimal('longitude', 10, 7)->nullable();
+ 
+            // Accuracy (meter) yang dilaporkan Geolocation API device.
+            $table->decimal('akurasi_meter', 8, 2)->nullable();
+ 
+            // Jarak ke titik target, dihitung ULANG di server (bukan dari
+            // client) saat submit — ini yang jadi acuan valid/tidaknya.
+            $table->decimal('jarak_meter', 8, 2)->nullable();
 
             // Materi yang diajarkan pada pertemuan tsb
             $table->text('materi');
