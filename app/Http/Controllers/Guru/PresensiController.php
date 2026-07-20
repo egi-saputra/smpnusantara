@@ -21,9 +21,11 @@ class PresensiController extends Controller
     // ─────────────────────────────────────────────────────────────
 
     private function resolveGuru(): Guru
-    {
-        return Guru::where('user_id', auth()->id())->firstOrFail();
-    }
+   {
+       $guru = Guru::where('user_id', auth()->id())->firstOrFail();
+       abort_unless($guru->kelas()->exists(), 403, 'Fitur ini hanya untuk wali kelas.');
+       return $guru;
+   }
 
     /**
      * Ambil semua kelas beserta info wali kelas dan jumlah siswa aktif.
