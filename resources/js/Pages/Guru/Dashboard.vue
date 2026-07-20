@@ -15,12 +15,35 @@ import {
     SparklesIcon,
     ArrowTrendingUpIcon,
     MegaphoneIcon,
-    EnvelopeIcon
+    EnvelopeIcon,
+    BookOpenIcon,
+    LockClosedIcon,
+    ArrowRightIcon
 } from '@heroicons/vue/24/solid'
 import { ChartBarIcon } from '@heroicons/vue/24/outline';
 
 const page = usePage();
 const userName = page.props.auth.user.name || 'User';
+
+// Status jendela pengisian jurnal, dikirim dari server lewat shared Inertia props
+// (lihat app/Support/JournalWindow.php + HandleInertiaRequests)
+const journalWindow = computed(() => page.props.journal ?? {
+    isOpen: false,
+    phase: 'after',
+    opensAt: '06:00',
+    closesAt: '14:00',
+})
+
+const journalStatusText = computed(() => {
+    switch (journalWindow.value.phase) {
+        case 'open':
+            return 'Tap untuk isi jurnal sekarang'
+        case 'before':
+            return `Buka pukul ${journalWindow.value.opensAt}`
+        default:
+            return `Sudah Ditutup, akan dibuka kembali besok pada pukul ${journalWindow.value.opensAt}`
+    }
+})
 
 const toast = ref({
     show: false,
@@ -142,7 +165,7 @@ const getInitials = (name) => {
         <Transition enter-active-class="transition duration-300 ease-out"
             enter-from-class="opacity-0 translate-x-4 scale-95" enter-to-class="opacity-100 translate-x-0 scale-100"
             leave-active-class="transition duration-200 ease-in" leave-from-class="opacity-100 translate-x-0 scale-100"
-            leave-to-class="opacity-0 translate-x-4 scale-95">
+            leave-to-class="opacity-0 translate-y-4 scale-95">
             <div v-if="toast.show" class="hidden md:flex fixed top-6 right-6 w-80 px-5 py-4 rounded-2xl shadow-2xl z-50
                        backdrop-blur-xl border items-center gap-3 text-sm font-medium" :class="toast.type === 'success'
                         ? 'bg-emerald-500/90 border-emerald-400/30 text-white'
@@ -202,11 +225,43 @@ const getInitials = (name) => {
                     </p>
                 </div>
                 <!-- Badge -->
-                <div class="hidden sm:flex items-center gap-2 bg-white/10 backdrop-blur-sm border border-white/20 
-                            px-4 py-2 rounded-full text-white/80 text-sm">
-                    <SparklesIcon class="w-4 h-4 text-amber-300" />
-                    <span>KreatiCraft ID</span>
-                </div>
+                <a href="https://www.lumiverse.co.id" target="_blank" rel="noopener noreferrer" class="hidden sm:flex items-center gap-2 relative overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 
+           px-4 py-2 rounded-full text-white/80 text-sm hover:bg-white/15 hover:text-white hover:border-white/30
+           transition-colors duration-300">
+                    <SparklesIcon class="w-4 h-4 text-amber-300 relative z-10" />
+                    <span class="relative z-10">Lumiverse School</span>
+                    <span class="badge-shimmer absolute inset-0 pointer-events-none"></span>
+                </a>
+            </div>
+
+            <!-- Jurnal Mengajar — badge/tombol status di dalam hero card -->
+            <div class="relative px-6 sm:px-8 pb-6 sm:pb-8">
+                <component :is="journalWindow.isOpen ? Link : 'div'"
+                    v-bind="journalWindow.isOpen ? { href: route('guru.journal.create'), prefetch: 'hover' } : {}"
+                    class="group flex items-center gap-3 sm:gap-4 w-full px-4 sm:px-5 py-3.5 rounded-2xl border backdrop-blur-sm transition-all duration-300"
+                    :class="journalWindow.isOpen
+                        ? 'bg-gradient-to-r from-blue-500/90 to-indigo-600/90 border-blue-400/30 shadow-lg shadow-blue-900/20 hover:shadow-blue-900/30 hover:-translate-y-0.5 cursor-pointer'
+                        : 'bg-gradient-to-r from-rose-500/80 to-red-600/80 border-rose-400/30 shadow-lg shadow-rose-900/10 opacity-90 cursor-not-allowed'">
+
+                    <div class="w-10 h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0 transition-transform duration-300"
+                        :class="journalWindow.isOpen ? 'group-hover:scale-110' : ''">
+                        <BookOpenIcon v-if="journalWindow.isOpen" class="w-5 h-5 text-white" />
+                        <LockClosedIcon v-else class="w-5 h-5 text-white" />
+                    </div>
+
+                    <div class="flex-1 min-w-0 text-left">
+                        <p class="text-white text-sm font-semibold leading-tight">Jurnal Mengajar</p>
+                        <p class="text-white/75 text-xs leading-tight mt-0.5">{{ journalStatusText }}</p>
+                    </div>
+
+                    <span
+                        class="flex-shrink-0 px-2.5 sm:flex hidden py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-white/20 text-white">
+                        {{ journalWindow.isOpen ? 'Open' : 'Closed' }}
+                    </span>
+
+                    <ArrowRightIcon v-if="journalWindow.isOpen"
+                        class="w-4 h-4 text-white/70 flex-shrink-0 hidden sm:block transition-transform duration-300 group-hover:translate-x-0.5" />
+                </component>
             </div>
         </div>
 
@@ -259,7 +314,7 @@ const getInitials = (name) => {
                             Guru</p>
                         <div class="flex items-end gap-2">
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ page.props.usersCount.guru
-                            }}</h3>
+                                }}</h3>
                             <span class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">pengguna</span>
                         </div>
                     </div>
@@ -286,7 +341,7 @@ const getInitials = (name) => {
                             Siswa</p>
                         <div class="flex items-end gap-2">
                             <h3 class="text-2xl font-bold text-gray-900 dark:text-white">{{ page.props.usersCount.siswa
-                            }}</h3>
+                                }}</h3>
                             <span class="text-xs text-gray-400 dark:text-gray-500 mb-0.5">pengguna</span>
                         </div>
                     </div>
@@ -317,10 +372,14 @@ const getInitials = (name) => {
                         <CheckBadgeIcon class="w-4 h-4 text-amber-500" />
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-800 dark:text-white mb-1">Coming Soon</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                            Insya Allah kalo dapet moodnya! — Wali Kelas, Journal Online Prakerin, Nilai Harian, SPMB
-                            dan Sistem Pembayaran Digital.
+                        <p class="text-md font-semibold text-gray-800 dark:text-white mb-1">Homeroom Teacher &
+                            Attendance Recap</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                            Fitur ini dapat diakses oleh wali kelas untuk melihat dan mengelola data kelas mulai dari
+                            daftar siswa di kelas tersebut dan menentukan sekretaris kelas untuk memberikan kewenangan
+                            terhadap siswa dalam melakukan input absensi harian siswa di kelasnya. Attedance Recap
+                            merupakan fitur pendukungnya yang berfungsi agar wali kelas dapat mengambil data kehadiran
+                            siswa pada periode waktu tertentu (Rekap Absensi Siswa).
                         </p>
                     </div>
                 </div>
@@ -333,10 +392,14 @@ const getInitials = (name) => {
                         <CheckBadgeIcon class="w-4 h-4 text-emerald-500" />
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-800 dark:text-white mb-1">Learning Materials</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                            Membuat materi pembelajaran yang sudah support semua tipe external data seperti PDF, Excel,
-                            Word, PPT, Image, Video!
+                        <p class="text-md font-semibold text-gray-800 dark:text-white mb-1">Presention Analitycs</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                            Fitur ini memungkinkan semua guru dan juga siswa untuk dapat melihat hasil analitik
+                            kehadiran
+                            siswa dan memantau perkembangan kehadiran siswa di sekolah. Fitur ini bertujuan agar dapat
+                            menyajikan sebuah data
+                            berbasis fakta dalam membantu pengambilan sebuah keputusan apabila memang diperlukan di
+                            kemudian hari atau waktu mendatang.
                         </p>
                     </div>
                 </div>
@@ -349,12 +412,36 @@ const getInitials = (name) => {
                         <CheckBadgeIcon class="w-4 h-4 text-sky-500" />
                     </div>
                     <div>
-                        <p class="text-sm font-semibold text-gray-800 dark:text-white mb-1">Assignment List</p>
-                        <p class="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
-                            Mengumpulkan tugas siswa jadi lebih mudah dan terindeks tanpa harus membuat drive terlebih
-                            dahulu. Biarkan siswa upload tugasnya berdasarkan nama guru yang telah memberikan tugas —
-                            tinggal tunggu sambil ngopi! ☕
+                        <p class="text-md font-semibold text-gray-800 dark:text-white mb-1">Jurnal Mengajar</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-2">
+                            Fitur ini berfungsi sebagai data history setiap guru dalam proses mengajar, seperti kapan
+                            seorang guru mengajar di kelas tertentu pada hari apa, jam berapa dan materi apa yang
+                            diberikan di kelas tersebut. Selain itu basis data riwayat mengajar ini akan dijadikan
+                            sebagai acuan dalam menetapkan jumlah jam mengajar / kehadiran seorang guru pada periode
+                            waktu tertentu (dalam sebulan). Penting untuk dipahami terkait aturan dari fitur ini
+                            adalah sebagai berikut:
                         </p>
+                        <ol
+                            class="list-decimal list-outside pl-4 space-y-2 text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+                            <li>
+                                Fitur jurnal mengajar hanya dapat diakses / dibuka setiap jam 07:00 setiap harinya, dan
+                                akan ditutup secara otomatis setiap hari pada pukul 14:00 (sehingga guru tidak dapat
+                                melakukan input jurnal jika sudah melewati batas waktu tersebut).
+                            </li>
+                            <li>
+                                Setiap satu baris data / satu kali input jurnal mengajar pada kelas yang telah
+                                dijadwalkan akan mengakumulasi jumlah jam mengajar sebanyak 2 jam (45 menit x 2).
+                            </li>
+                            <li>
+                                Guru tidak dapat mengisi jurnal dalam durasi yang sama atau belum selesai. Sebagai
+                                contoh: seorang guru menginput jurnal mengajar pada hari Senin pukul 07:00 dan selesai
+                                pada pukul 08:30 (waktu ini terisi otomatis berdasarkan ketepatan waktu saat guru
+                                tersebut menginput jurnal). Guru tersebut tidak dapat melakukan input jurnal jadwal
+                                selanjutnya di hari yang sama sebelum pukul 08:30 - baru bisa menginput kembali setelah
+                                durasi mengajar sebelumnya selesai, misalnya pukul 08:31. Hal ini berulang hingga pukul
+                                14:00, saat fitur ini otomatis tertutup.
+                            </li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -386,3 +473,25 @@ const getInitials = (name) => {
 
     </UserLayout>
 </template>
+
+<style>
+.badge-shimmer {
+    background: linear-gradient(110deg,
+            transparent 20%,
+            rgba(255, 255, 255, 0.35) 45%,
+            rgba(255, 255, 255, 0.35) 55%,
+            transparent 80%);
+    background-size: 200% 100%;
+    animation: badge-shimmer-move 2.8s ease-in-out infinite;
+}
+
+@keyframes badge-shimmer-move {
+    0% {
+        background-position: 150% 0;
+    }
+
+    100% {
+        background-position: -50% 0;
+    }
+}
+</style>
